@@ -1,0 +1,38 @@
+# Model checkpoints (too large for GitHub)
+checkpoints/
+*.pt
+*.bin
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Training logs
+*.log
+nohup.out
+training_output.log
+train_status.json
+
+# Data files
+data/
+*.ids
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.venv/
+venv/
