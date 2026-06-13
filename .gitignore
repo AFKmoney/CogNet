@@ -1,6 +1,6 @@
 # Model checkpoints (too large for GitHub)
 checkpoints/
-*.pt
+# *.pt - allowing cognet_best.pt (FP16, under 100MB)
 *.bin
 
 # Python
