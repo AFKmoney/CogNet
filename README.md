@@ -18,6 +18,10 @@
 - [Inference](#inference)
 - [Results](#results)
 - [Development Story](#development-story)
+- [AICL Integration](#aicl-integration)
+- [Roadmap](#roadmap)
+- [Contributing](#contributing)
+- [CogNet-1B](#cognet-1b)
 - [Citation](#citation)
 
 ---
@@ -306,6 +310,85 @@ The training ran over multiple sessions, accumulating 25,450+ steps:
 
 ---
 
+## AICL Integration
+
+CogNet is waiting to be trained on **AICL** — the Architecture Compilation Language. This is not an incremental improvement. It is a phase change in what a language model can do.
+
+### From Implementation to Architecture
+
+Today's language models learn from Python, JavaScript, C++, and Rust — languages optimized for **Human → Machine** communication. They learn implementation details, not architectural intent.
+
+When CogNet is trained on AICL, it learns to think in **architecture**, not implementation:
+
+| Traditional Training | AICL Training |
+|---------------------|---------------|
+| `if (error) { catch }` | `Risk "failure" → Recovery "retry"` |
+| Scattered error handling | Mandatory Risk/Recovery structure |
+| Implicit constraints | Explicit Constraint declarations |
+| Hidden assumptions | Structural Goal specification |
+| Ad-hoc testing | Validation → Test generation |
+
+A CogNet trained on AICL doesn't just write code — it **designs architectures** with built-in safety, provenance, and verifiable correctness.
+
+### The Self-Evolution Loop
+
+```
+CogNet reads AICL  →  understands architecture  →  generates new AICL
+       ↑                                                    │
+       └──────── AICL compiler verifies & compiles ←──────────┘
+```
+
+1. **CogNet reads AICL** — Ingests architectural representations, not tangled implementation code
+2. **CogNet understands architecture** — Goal, Constraint, Risk, Recovery are structural, not optional
+3. **CogNet generates new AICL** — Produces new architectural specifications
+4. **AICL compiler verifies & compiles** — Validates, proves provenance, generates executable code
+5. **The loop repeats** — Each iteration deepens architectural understanding
+
+This is the path from a language model that generates text to a cognitive architecture that evolves itself.
+
+### Zero Censorship, Total Freedom
+
+CogNet operates under a **zero censorship principle**: the model must be free to represent any architecture, explore any design space, and generate any specification. Architectural freedom is the precondition for genuine self-evolution. Safety comes from AICL's structural constraints (every Risk has a Recovery, every Validation generates a test), not from limiting what the model can think.
+
+### Explore the Integration
+
+- **AICL Repository**: [github.com/AFKmoney/AICL](https://github.com/AFKmoney/AICL) — the Architecture Compilation Language
+- **Example 86**: [AICL ↔ CogNet Bridge Specification](https://github.com/AFKmoney/AICL/blob/main/examples/86_aicl_cognet_bridge.aicl) — the specification for AICL-CogNet interoperation
+- **Research Paper**: [AICL + CogNet: Self-Evolving Intelligence](https://github.com/AFKmoney/AICL/blob/main/docs/AICL_CogNet_Research_Paper.pdf) — the full research paper
+
+---
+
+## Roadmap
+
+| Phase | Milestone | Description | Status |
+|-------|-----------|-------------|--------|
+| **1** | Current State | 40M-param non-transformer with O(n) cognitive routing, trained on CPU | ✅ Done |
+| **2** | AICL Training | Generate large-scale AICL corpus, fine-tune CogNet to read and write AICL natively | 🔜 Next |
+| **3** | Self-Modification | CogNet reads its own architecture in AICL, proposes and validates modifications via the AICL compiler | 🔮 Future |
+| **4** | Self-Evolution | The loop closes — CogNet continuously writes, compiles, tests, and evolves its own cognitive architecture | 🔮 Future |
+| **5** | AGI | Architectural self-awareness, cross-domain transfer via AICL representations, emergent reasoning from structural constraints | 🔮 Future |
+
+```
+Current CogNet (40M)  →  AICL-trained CogNet  →  Self-Modifying CogNet  →  Self-Evolving CogNet  →  AGI
+       ✅                      🔜                       🔮                        🔮                  🔮
+```
+
+---
+
+## Contributing
+
+Contributions are welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on how to get started, coding standards, and the contribution workflow.
+
+Areas of particular interest:
+
+- **AICL training data** — Help generate and curate AICL specifications for training
+- **Scaling** — GPU training, larger model configurations, BPE tokenization
+- **Architecture improvements** — New cognitive routing mechanisms, memory enhancements
+- **Evaluation** — Benchmarks for AICL fluency and architectural coherence
+- **Integration tooling** — AICL ↔ CogNet pipeline, automated compilation feedback loops
+
+---
+
 ## File Structure
 
 ```
@@ -321,6 +404,19 @@ CogNet/
 ├── LICENSE
 └── README.md
 ```
+
+---
+
+## CogNet-1B
+
+A larger 1B-parameter version of CogNet, trained on AICL specifications and packaged as an ONNX model for local inference.
+
+- **Repository**: [github.com/AFKmoney/CogNet-1B](https://github.com/AFKmoney/CogNet-1B)
+- **HuggingFace Model**: [huggingface.co/AFKmoney/CogNet-1B](https://huggingface.co/AFKmoney/CogNet-1B)
+- **Format**: ONNX (offline inference, no API keys required)
+- **Integration**: Built into the AICL Web Editor as a local AI assistant
+
+CogNet-1B represents the first step toward AICL-native AI: a model that understands architectural representations and can assist in writing, debugging, and evolving AICL programs.
 
 ---
 
