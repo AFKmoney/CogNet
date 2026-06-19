@@ -322,8 +322,9 @@ The training pipeline is **ready**: the AICL compiler now includes a Turing-comp
 # On a GPU cloud instance (RunPod / Lambda / Vast):
 git clone https://github.com/AFKmoney/CogNet.git && cd CogNet
 pip install -r requirements_aicl.txt
-python cloud_train.py --steps 5000          # spec → Python
-python cloud_train.py --steps 5000 --multitarget  # spec → Python + Rust
+python cloud_train.py --steps 5000 --model small    # 163M (8-12 GB VRAM)
+python cloud_train.py --steps 5000 --model 1b       # 1B   (24-40 GB VRAM)
+python cloud_train.py --steps 5000 --model 1b --multitarget  # spec → Python + Rust
 ```
 
 The script auto-clones the [AICL compiler](https://github.com/AFKmoney/AICL),

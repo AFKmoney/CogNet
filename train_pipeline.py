@@ -255,24 +255,23 @@ def get_cosine_lr(step: int, warmup_steps: int, max_steps: int,
 # ─── Training ────────────────────────────────────────────────────────────────
 
 def train(args):
-    # ── Config ──
-    vocab_size = 136
-    hidden_dim = 512
-    num_blocks = 6
-    num_channels = 6
-    channel_dim = 128
-    ff_dim = 1024
-    routing_iters = 1
-    max_adaptive_steps = 2
-    max_seq_len = 192
-    working_slots = 32
-    episodic_slots = 64
-    semantic_slots = 128
-    key_dim = 256
-    dropout = 0.1
+    # ── Model size selection ──
+    # 'small': ~163M params, seq_len=2048, fits on 8-12 GB GPU
+    # '1b':    ~1B params,   seq_len=2048, needs 24-40 GB GPU (A100 recommended)
+    model_size = getattr(args, 'model', 'small')
+    max_seq_len = 2048  # AICL specs need the full context window
 
-    batch_size = 8
-    grad_accum_steps = 4
+    if model_size == '1b':
+        batch_size = 2
+        grad_accum_steps = 16  # effective batch = 32
+        print("Model: CogNet-1B (~1.01B params, seq_len=2048)")
+    elif model_size == 'small':
+        batch_size = 4
+        grad_accum_steps = 8   # effective batch = 32
+        print("Model: CogNet-small (~163M params, seq_len=2048)")
+    else:
+        raise ValueError(f"unknown --model {model_size!r} (use 'small' or '1b')")
+
     max_lr = 3e-4
     min_lr = 1e-5
     warmup_steps = 100
@@ -286,6 +285,8 @@ def train(args):
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print(f"Device: {device}")
+    if device.type == 'cpu' and model_size == '1b':
+        print("WARNING: training a 1B model on CPU will be extremely slow. Use a GPU.")
 
     # ── Tokenizer ──
     tok_path = os.path.join(ckpt_dir, 'tokenizer_v3.json')
@@ -296,7 +297,6 @@ def train(args):
         tokenizer = CharTokenizer()
         tokenizer.save(tok_path)
         print(f"Created tokenizer with vocab_size={tokenizer.vocab_size}")
-    # Override vocab_size to match tokenizer
     vocab_size = tokenizer.vocab_size
 
     # ── Data ──
@@ -312,22 +312,14 @@ def train(args):
     )
 
     # ── Model ──
-    model = CogNet1B(
-        vocab_size=vocab_size,
-        hidden_dim=hidden_dim,
-        num_blocks=num_blocks,
-        num_channels=num_channels,
-        channel_dim=channel_dim,
-        ff_dim=ff_dim,
-        routing_iters=routing_iters,
-        max_adaptive_steps=max_adaptive_steps,
-        max_seq_len=max_seq_len,
-        working_slots=working_slots,
-        episodic_slots=episodic_slots,
-        semantic_slots=semantic_slots,
-        key_dim=key_dim,
-        dropout=dropout,
-    ).to(device)
+    # Use the factory functions from cognet_1b.py. These set the architecture
+    # hyperparameters correctly for each size tier.
+    from cognet_1b import create_cognet_1b, create_cognet_1b_small
+    if model_size == '1b':
+        model = create_cognet_1b(vocab_size=vocab_size, max_seq_len=max_seq_len)
+    else:
+        model = create_cognet_1b_small(vocab_size=vocab_size, max_seq_len=max_seq_len)
+    model = model.to(device)
 
     param_count = model.count_parameters()
     print(f"Model parameters: {param_count['total']:,}")
@@ -542,5 +534,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='CogNet Training Pipeline')
     parser.add_argument('--steps', type=int, default=100,
                         help='Number of training steps (default: 100)')
+    parser.add_argument('--model', type=str, default='small', choices=['small', '1b'],
+                        help='Model size: small (~163M) or 1b (~1B params) (default: small)')
     args = parser.parse_args()
     train(args)

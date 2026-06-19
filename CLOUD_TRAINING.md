@@ -34,17 +34,33 @@ cd CogNet
 pip install -r requirements_aicl.txt
 
 # 3. Launch training (clones AICL, generates corpus, trains)
-python cloud_train.py --steps 5000
+python cloud_train.py --steps 5000                     # small model (163M)
+python cloud_train.py --steps 5000 --model 1b          # full 1B model
 ```
 
 That's it. The script auto-clones the AICL compiler, generates a fresh corpus,
 and launches `train_pipeline.py` with GPU auto-detection.
 
+## Model sizes
+
+| Flag | Params | VRAM needed | Recommended GPU | Notes |
+|---|---|---|---|---|
+| `--model small` (default) | 163M | 8–12 GB | RTX 3060, T4 | Faster iteration, good for prototyping |
+| `--model 1b` | 1.01B | 24–40 GB | A100 40GB, 2× RTX 4090 | Full capacity, best quality |
+
+Both use seq_len=2048 (full AICL spec context window).
+
 ## Training options
 
 ```bash
+# Full 1B model on A100
+python cloud_train.py --steps 5000 --model 1b
+
 # Multi-target corpus (spec → Python AND Rust code)
-python cloud_train.py --steps 5000 --multitarget
+python cloud_train.py --steps 5000 --model 1b --multitarget
+
+# Small model for quick experiments (fits on consumer GPUs)
+python cloud_train.py --steps 5000 --model small
 
 # Resume from latest checkpoint (segment-based, lossless)
 python cloud_train.py --steps 5000 --resume
@@ -55,12 +71,22 @@ python cloud_train.py --steps 5000 --skip-setup
 
 ## Expected timing
 
+### Small model (163M)
+
 | GPU | Steps | Approx time | Notes |
 |---|---|---|---|
-| RTX 4090 | 5000 | ~1–2 h | Good cost/performance |
-| A100 80GB | 5000 | ~30–60 min | Fastest |
-| T4 16GB | 5000 | ~4–6 h | Cheapest, slower |
-| CPU only | 500 | ~6–8 h | For testing only |
+| RTX 4090 | 5000 | ~30–60 min | Good cost/performance |
+| T4 16GB | 5000 | ~2–3 h | Cheapest option |
+| CPU only | 500 | ~3–4 h | For testing only |
+
+### 1B model
+
+| GPU | Steps | Approx time | Notes |
+|---|---|---|---|
+| A100 80GB | 5000 | ~2–4 h | Recommended for 1B |
+| A100 40GB | 5000 | ~3–5 h | Works, tighter on memory |
+| 2× RTX 4090 | 5000 | ~4–6 h | Cheapest 1B option |
+| CPU only | — | — | Not practical for 1B |
 
 ## Checkpoints
 

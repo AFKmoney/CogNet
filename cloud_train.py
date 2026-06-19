@@ -105,6 +105,8 @@ def main():
         description="CogNetAICL cloud training (one-shot, GPU-ready).")
     parser.add_argument("--steps", type=int, default=5000,
                         help="training steps (default 5000; ~2-4h on a single GPU)")
+    parser.add_argument("--model", type=str, default="small", choices=["small", "1b"],
+                        help="model size: small (~163M, 8-12GB VRAM) or 1b (~1B, 24-40GB VRAM)")
     parser.add_argument("--multitarget", action="store_true",
                         help="use the multi-target corpus (spec -> Python + Rust)")
     parser.add_argument("--resume", action="store_true",
@@ -124,9 +126,9 @@ def main():
     prepare_data(corpus)
 
     # Launch the training pipeline. It auto-detects CUDA.
-    print(f"\n[cloud_train] launching training: {args.steps} steps")
+    print(f"\n[cloud_train] launching training: {args.model} model, {args.steps} steps")
     cmd = [sys.executable, os.path.join(HERE, "train_pipeline.py"),
-           "--steps", str(args.steps)]
+           "--steps", str(args.steps), "--model", args.model]
     run(cmd)
 
 
