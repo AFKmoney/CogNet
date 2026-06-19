@@ -312,7 +312,24 @@ The training ran over multiple sessions, accumulating 25,450+ steps:
 
 ## AICL Integration
 
-CogNet is waiting to be trained on **AICL** — the Architecture Compilation Language. This is not an incremental improvement. It is a phase change in what a language model can do.
+CogNet is being trained on **AICL** — the Artificial Intelligence-Centered Language. This is not an incremental improvement. It is a phase change in what a language model can do.
+
+The training pipeline is **ready**: the AICL compiler now includes a Turing-complete sub-language (AX) that lets it generate real, executable algorithm code in Python, Rust, JavaScript, and Go. A corpus generator produces spec→code pairs, and `cloud_train.py` launches fine-tuning on any GPU instance.
+
+### Train CogNet on AICL (ready now)
+
+```bash
+# On a GPU cloud instance (RunPod / Lambda / Vast):
+git clone https://github.com/AFKmoney/CogNet.git && cd CogNet
+pip install -r requirements_aicl.txt
+python cloud_train.py --steps 5000          # spec → Python
+python cloud_train.py --steps 5000 --multitarget  # spec → Python + Rust
+```
+
+The script auto-clones the [AICL compiler](https://github.com/AFKmoney/AICL),
+generates a fresh 30-algorithm corpus (258k+ chars), and launches training
+with GPU auto-detection. See [`CLOUD_TRAINING.md`](./CLOUD_TRAINING.md) for
+GPU recommendations, timing, and checkpoint usage.
 
 ### From Implementation to Architecture
 
@@ -363,7 +380,7 @@ CogNet operates under a **zero censorship principle**: the model must be free to
 | Phase | Milestone | Description | Status |
 |-------|-----------|-------------|--------|
 | **1** | Current State | 40M-param non-transformer with O(n) cognitive routing, trained on CPU | ✅ Done |
-| **2** | AICL Training | Generate large-scale AICL corpus, fine-tune CogNet to read and write AICL natively | 🔜 Next |
+| **2** | AICL Training | Generate large-scale AICL corpus, fine-tune CogNet to read and write AICL natively | 🔨 In progress (corpus + pipeline ready) |
 | **3** | Self-Modification | CogNet reads its own architecture in AICL, proposes and validates modifications via the AICL compiler | 🔮 Future |
 | **4** | Self-Evolution | The loop closes — CogNet continuously writes, compiles, tests, and evolves its own cognitive architecture | 🔮 Future |
 | **5** | AGI | Architectural self-awareness, cross-domain transfer via AICL representations, emergent reasoning from structural constraints | 🔮 Future |
