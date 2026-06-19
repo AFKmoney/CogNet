@@ -1,0 +1,4 @@
+# CogNetAICL training dependencies
+# Install: pip install -r requirements_aicl.txt
+torch>=2.0
+numpy
