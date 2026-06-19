@@ -46,18 +46,32 @@ def ensure_corpus(corpus_path, force_regen=False):
 
 def prepare_wikitext_layout(corpus_path, data_dir, split=0.9):
     """Lay out the corpus as wiki.train.raw + wiki.valid.raw inside a fake
-    wikitext-2-raw dir, so train_pipeline.load_data finds it naturally."""
+    wikitext-2-raw dir, so train_pipeline.load_data finds it naturally.
+
+    Note: train_pipeline.py hardcodes data_dir as <script_dir>/data and only
+    accepts --steps on its CLI. So we always write into that exact location
+    regardless of the --data_dir flag, and invoke the pipeline with just
+    --steps. Clear any cached .pt first so the new corpus tokenizes fresh.
+    """
     with open(corpus_path, "r", encoding="utf-8") as f:
         text = f.read()
     cut = int(len(text) * split)
-    wt_dir = os.path.join(data_dir, "wikitext-2-raw")
+    # The pipeline looks for data/wikitext-2-raw/wiki.{train,valid}.raw
+    pipeline_data = os.path.join(HERE, "data")
+    wt_dir = os.path.join(pipeline_data, "wikitext-2-raw")
     os.makedirs(wt_dir, exist_ok=True)
     with open(os.path.join(wt_dir, "wiki.train.raw"), "w", encoding="utf-8") as f:
         f.write(text[:cut])
     with open(os.path.join(wt_dir, "wiki.valid.raw"), "w", encoding="utf-8") as f:
         f.write(text[cut:])
+    # Clear tokenized cache so the new corpus is re-tokenized
+    for cache in ("train_ids.pt", "valid_ids.pt"):
+        c = os.path.join(HERE, "checkpoints", cache)
+        if os.path.exists(c):
+            os.remove(c)
     print(f"[train_aicl] corpus split: train={cut:,} chars, valid={len(text)-cut:,} chars")
-    return data_dir
+    print(f"[train_aicl] wrote to {wt_dir}")
+    return pipeline_data
 
 
 def main():
@@ -77,15 +91,11 @@ def main():
     corpus = ensure_corpus(args.corpus, force_regen=args.generate)
     prepare_wikitext_layout(corpus, args.data_dir)
 
-    # Launch the standard pipeline. It will find our wikitext-2-raw dir and
-    # use it instead of downloading WikiText.
+    # Launch the standard pipeline. train_pipeline.py only accepts --steps;
+    # data_dir/ckpt_dir are hardcoded to <HERE>/data and <HERE>/checkpoints.
     cmd = [
         sys.executable, os.path.join(HERE, "train_pipeline.py"),
-        "--data_dir", args.data_dir,
-        "--ckpt_dir", args.ckpt_dir,
         "--steps", str(args.steps),
-        "--seq_len", str(args.seq_len),
-        "--batch_size", str(args.batch_size),
     ] + passthrough
     print("[train_aicl] launching:", " ".join(cmd))
     subprocess.run(cmd, check=True)
